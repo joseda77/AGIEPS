@@ -14,7 +14,7 @@ $agi->answer();
 
 $agi->exec("AGI","googletts.agi,\"Bienvenido al sistema de  reservas de citas de la EPS de la universidad de antióquia\",es");
 $agi->exec("AGI","googletts.agi,\"ingrese su identificación para continuar\",es");
-$id = $agi->get_data("beep",5000,1);
+$id = $agi->get_data("beep",5000,10);
 $valor = $id['result'];
 $result = mysql_query("SELECT *  FROM persona WHERE id = ".$valor, $link);
 $row = mysql_fetch_array($result);
@@ -102,21 +102,26 @@ if($opt != null){
 				break;
 
 			case "2":
+				$agi->exec("AGI","googletts.agi,\"Usted tiene las siguientes citas agendadas\",es");
+				$id_persona= $row['id'];
+				$result = mysql_query("SELECT *  FROM citas WHERE id_persona = ".$id_persona, $link);
+				while ($rows = mysql_fetch_array($result)) {
+					$agi->exec("AGI","googletts.agi,\"Cita con codigo". $rows["id_cita"] ."\",es");
+				}
 				$agi->exec("AGI","googletts.agi,\"Por favor ingrese el codigo de la cita\",es");
-				$cod = $agi->get_data("beep",5000,1);
+				$cod = $agi->get_data("beep",5000,10);
 				$agi->exec("AGI","googletts.agi,\"el numero marcado fue". $cod["result"] ."\",es");
 				$codigo = $cod["result"];
 				$result = mysql_query("SELECT *  FROM citas WHERE id_cita = ".$codigo, $link);
-				echo($result);
-				while ($row = mysql_fetch_array($result)){
+				while ($row3 = mysql_fetch_array($result)){
 					$agi->exec("AGI","googletts.agi,\"La información de su cita es \",es");
-					$agi->exec("AGI","googletts.agi,\"El día de agendamiento de su cita es ". $row['fecha_hora'] ."\",es");
-					$especialista = $row['id_especialista'];								
+					$agi->exec("AGI","googletts.agi,\"El día de agendamiento de su cita es ". $row3['fecha_hora'] ."\",es");
+					$especialista = $row3['id_especialista'];								
 					$result2 = mysql_query("SELECT nombre  FROM especialista WHERE id = ".$especialista, $link);
 					$row2 = mysql_fetch_array($result2);					
 					$agi->exec("AGI","googletts.agi,\"el nombre del especialista es ". $row2['nombre'] ."\",es");
-					$agi->exec("AGI","googletts.agi,\"la cita es de tipo ". $row['tipo'] ."\",es");
-					$agi->exec("AGI","googletts.agi,\" y el lugar de su cita es ". $row['lugar'] ."\",es");
+					$agi->exec("AGI","googletts.agi,\"la cita es de tipo ". $row3['tipo'] ."\",es");
+					$agi->exec("AGI","googletts.agi,\" y el lugar de su cita es ". $row3['lugar'] ."\",es");
 					sleep(1);
 				}
 				break;
